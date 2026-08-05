@@ -1,0 +1,33 @@
+volumes:
+  pg_data_production:
+  static_volume:
+
+services:
+  db:
+    image: postgres:13.10
+    env_file: .env
+    volumes:
+      - pg_data_production:/var/lib/postgresql/data
+
+  backend:
+    image: dnxer111/taski_backend:latest
+    env_file: .env
+    environment:
+      DJANGO_SETTINGS_MODULE: backend.settings
+    volumes:
+      - static_volume:/app/staticfiles
+
+  frontend:
+    image: dnxer111/taski_frontend:latest
+    env_file: .env
+    command: cp -r /app/build/. /staticfiles/
+    volumes:
+      - static_volume:/staticfiles
+
+  gateway:
+    image: dnxer111/taski_gateway:latest
+    env_file: .env
+    volumes:
+      - static_volume:/staticfiles/
+    ports:
+      - "8000:80"
